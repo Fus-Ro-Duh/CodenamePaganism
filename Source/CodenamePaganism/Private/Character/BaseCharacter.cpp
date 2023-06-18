@@ -15,7 +15,8 @@
 #include "Engine/DamageEvents.h"
 #include "Character/Components/BaseMovementComponent.h"
 
-ABaseCharacter::ABaseCharacter()
+ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
+	Super(ObjInit.SetDefaultSubobjectClass<UBaseMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -87,6 +88,11 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(IAMove, ETriggerEvent::Triggered, this, &ABaseCharacter::Move);
 		EnhancedInputComponent->BindAction(IALook, ETriggerEvent::Triggered, this, &ABaseCharacter::Look);
 		EnhancedInputComponent->BindAction(IAJump, ETriggerEvent::Triggered, this, &ABaseCharacter::Jump);
+		EnhancedInputComponent->BindAction(IACrouch, ETriggerEvent::Started, this, &ABaseCharacter::Crouch);
+		EnhancedInputComponent->BindAction(IACrouch, ETriggerEvent::Completed, this, &ABaseCharacter::UnCrouch);
+		EnhancedInputComponent->BindAction(IAWalk, ETriggerEvent::Started, this, &ABaseCharacter::Walk);
+		EnhancedInputComponent->BindAction(IARun, ETriggerEvent::Started, this, &ABaseCharacter::Run);
+		EnhancedInputComponent->BindAction(IARun, ETriggerEvent::Completed, this, &ABaseCharacter::StopRun);
 	}
 }
 
@@ -120,6 +126,33 @@ void ABaseCharacter::Look(const FInputActionValue& Value)
 void ABaseCharacter::Jump(const FInputActionValue& Value)
 {
 	Super::Jump();
+}
+
+void ABaseCharacter::Crouch(const FInputActionValue& Value)
+{
+	Super::Crouch();
+}
+void ABaseCharacter::UnCrouch(const FInputActionValue& Value)
+{
+	Super::UnCrouch();
+}
+
+void ABaseCharacter::Walk(const FInputActionValue& Value)
+{
+	IsWalking = !IsWalking;
+	UE_LOG(LogLoad, Warning, TEXT("Walking"));
+}
+
+void ABaseCharacter::Run(const FInputActionValue& Value)
+{
+	IsRunning = true;
+	IsWalking = false;
+	UE_LOG(LogLoad, Warning, TEXT("Running"));
+}
+void ABaseCharacter::StopRun(const FInputActionValue& Value)
+{
+	IsRunning = false;
+	UE_LOG(LogLoad, Warning, TEXT("not Running"), IsRunning);
 }
 
 void ABaseCharacter::OnCameraCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -169,6 +202,5 @@ void ABaseCharacter::OnGroundLanded(const FHitResult& Hit)
 	{
 		const auto FinalDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
 		TakeDamage(FinalDamage, FDamageEvent(), nullptr, nullptr);
-		UE_LOG(LogTemp, Error, TEXT("Damage: %f"), FinalDamage);
 	}
 }

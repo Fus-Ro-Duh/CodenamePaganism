@@ -20,8 +20,11 @@ class CODENAMEPAGANISM_API ABaseCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	ABaseCharacter();
+	ABaseCharacter(const FObjectInitializer& ObjInit);
 	virtual void OnDeath();
+
+	bool IsWalking = false;
+	bool IsRunning = false;
 
 protected:
 	virtual void BeginPlay() override;
@@ -59,6 +62,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
 	UInputAction* IAJump;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
+	UInputAction* IACrouch;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
+	UInputAction* IAWalk;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
+	UInputAction* IARun;
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 
@@ -69,6 +81,12 @@ private:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
+	void Crouch(const FInputActionValue& Value);
+	void UnCrouch(const FInputActionValue& Value);
+	void Walk(const FInputActionValue& Value);
+	void Run(const FInputActionValue& Value);
+	void StopWalk(const FInputActionValue& Value);
+	void StopRun(const FInputActionValue& Value);
 
 	//Camera collision functions
 	void CheckCameraOverlap();
