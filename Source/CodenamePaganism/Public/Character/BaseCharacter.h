@@ -12,6 +12,7 @@ class USpringArmComponent;
 class USphereComponent;
 class UInputMappingContext;
 class UInputAction;
+class UHealthComponent;
 
 UCLASS()
 class CODENAMEPAGANISM_API ABaseCharacter : public ACharacter
@@ -20,10 +21,19 @@ class CODENAMEPAGANISM_API ABaseCharacter : public ACharacter
 
 public:
 	ABaseCharacter();
+	virtual void OnDeath();
 
 protected:
 	virtual void BeginPlay() override;
 
+	//Fall damage properties
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	FVector2D LandedDamageVelocity = FVector2D(900.0f, 1200.0f);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	FVector2D LandedDamage = FVector2D(10.0f, 100.0f);
+
+	//Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USpringArmComponent* SpringArmComponent;
 
@@ -33,7 +43,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USphereComponent* CameraCollisionComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Inputs")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
+	UHealthComponent* HealthComponent;
+
+	//Inputs
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
 	UInputMappingContext* OnFootMappingContext;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
@@ -51,18 +65,22 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
-
+	//Movement Functions
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
 
+	//Camera collision functions
+	void CheckCameraOverlap();
 	UFUNCTION()
 	void OnCameraCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
 	UFUNCTION()
 	void OnCameraCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	void CheckCameraOverlap();
-
+	//Setting up input
 	void SetupPlayerInput();
+
+	//Fall damage
+	UFUNCTION()
+	void OnGroundLanded(const FHitResult& Hit);
 };

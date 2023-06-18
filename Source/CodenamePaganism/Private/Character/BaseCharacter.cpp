@@ -4,11 +4,16 @@
 #include "Character/BaseCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "MainPlayerController.h"
 #include "Components/InputComponent.h"
+#include "Character/Components/HealthComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/DamageEvents.h"
+#include "Character/Components/BaseMovementComponent.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -25,12 +30,33 @@ ABaseCharacter::ABaseCharacter()
 	CameraCollisionComponent->SetupAttachment(CameraComponent);
 	CameraCollisionComponent->SetSphereRadius(10.0f);
 	CameraCollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
+
+	LandedDelegate.AddDynamic(this, &ABaseCharacter::OnGroundLanded);
+}
+
+void ABaseCharacter::OnDeath()
+{
+	GetCharacterMovement()->DisableMovement();
+	SetLifeSpan(3.0f);
+
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetSimulatePhysics(true);
+
+	if (Controller)
+	{
+		Controller->ChangeState(NAME_Spectating);
+	}
 }
 
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	check(HealthComponent);
 	check(GetMesh());
 
 	check(CameraCollisionComponent);
@@ -39,6 +65,9 @@ void ABaseCharacter::BeginPlay()
 	CameraCollisionComponent->OnComponentEndOverlap.AddDynamic(this, &ABaseCharacter::OnCameraCollisionEndOverlap);
 
 	SetupPlayerInput();
+
+	HealthComponent->OnDeath.AddUObject(this, &ABaseCharacter::OnDeath);
+	//HealthComponent->OnHealthChanged.AddUObject(this, &ABaseCharacter::OnHealthChanged);
 }
 
 void ABaseCharacter::Tick(float DeltaTime)
@@ -50,6 +79,8 @@ void ABaseCharacter::Tick(float DeltaTime)
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	check(PlayerInputComponent);
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
@@ -103,7 +134,7 @@ void ABaseCharacter::OnCameraCollisionEndOverlap(UPrimitiveComponent* Overlapped
 
 void ABaseCharacter::CheckCameraOverlap()
 {
-	/*const auto HideMesh = CameraCollisionComponent->IsOverlappingComponent(GetCapsuleComponent());
+	const auto HideMesh = CameraCollisionComponent->IsOverlappingComponent(GetCapsuleComponent());
 	GetMesh()->SetOwnerNoSee(HideMesh);
 
 	TArray<USceneComponent*> MeshChildren;
@@ -116,7 +147,7 @@ void ABaseCharacter::CheckCameraOverlap()
 		{
 			MeshChildGeometry->SetOwnerNoSee(HideMesh);
 		}
-	}*/
+	}
 }
 
 void ABaseCharacter::SetupPlayerInput()
@@ -130,3 +161,14 @@ void ABaseCharacter::SetupPlayerInput()
 	}
 }
 
+void ABaseCharacter::OnGroundLanded(const FHitResult& Hit)
+{
+	const auto FallVelocityZ = -GetVelocity().Z;
+
+	if (FallVelocityZ > LandedDamageVelocity.X)
+	{
+		const auto FinalDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
+		TakeDamage(FinalDamage, FDamageEvent(), nullptr, nullptr);
+		UE_LOG(LogTemp, Error, TEXT("Damage: %f"), FinalDamage);
+	}
+}
