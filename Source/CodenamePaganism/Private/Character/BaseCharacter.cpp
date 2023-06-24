@@ -20,6 +20,13 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
+	//GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
+
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
 	SpringArmComponent->SetupAttachment(GetRootComponent());
 	SpringArmComponent->bUsePawnControlRotation = false;
@@ -93,7 +100,6 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 void ABaseCharacter::Move(const FInputActionValue& Value)
 {
 	//if (ActionState != EActionState::EAS_Unoccupied) return;
-
 	const FVector2D MoveDirection = Value.Get<FVector2D>();
 	
 	const FRotator Rotation = Controller->GetControlRotation();
@@ -108,8 +114,7 @@ void ABaseCharacter::Move(const FInputActionValue& Value)
 void ABaseCharacter::Look(const FInputActionValue& Value)
 {
 	//if (ActionState != EActionState::EAS_Unoccupied) return;
-	bUseControllerRotationYaw = !GetVelocity().IsZero();
-	
+
 	const FVector2D LookDirection = Value.Get<FVector2D>();
 	if (GetController())
 	{
