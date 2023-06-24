@@ -14,6 +14,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/DamageEvents.h"
 #include "Character/Components/BaseMovementComponent.h"
+#include "Camera/PlayerCameraManager.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -86,14 +87,14 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	{
 		EnhancedInputComponent->BindAction(IAMove, ETriggerEvent::Triggered, this, &ABaseCharacter::Move);
 		EnhancedInputComponent->BindAction(IALook, ETriggerEvent::Triggered, this, &ABaseCharacter::Look);
-		EnhancedInputComponent->BindAction(IAJump, ETriggerEvent::Triggered, this, &ABaseCharacter::Jump);
+		EnhancedInputComponent->BindAction(IAJump, ETriggerEvent::Started, this, &ABaseCharacter::Jump);
 	}
 }
 
 void ABaseCharacter::Move(const FInputActionValue& Value)
 {
 	//if (ActionState != EActionState::EAS_Unoccupied) return;
-
+	bUseControllerRotationYaw = true;
 	const FVector2D MoveDirection = Value.Get<FVector2D>();
 	
 	const FRotator Rotation = Controller->GetControlRotation();
@@ -110,10 +111,22 @@ void ABaseCharacter::Look(const FInputActionValue& Value)
 	//if (ActionState != EActionState::EAS_Unoccupied) return;
 
 	const FVector2D LookDirection = Value.Get<FVector2D>();
-	if (GetController())
+	bUseControllerRotationYaw = !GetVelocity().IsZero();
+
+	//if (!GetVelocity().IsZero())
+	//{
+	//	FRotator CurRotation;
+	//	FVector CurLocation;
+	//	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraViewPoint(CurLocation, CurRotation);
+	//	FRotator CameraRotation = FRotator(0.0f, CurRotation.Yaw, 0.0f);
+	//	RootComponent->MoveComponent(FVector::ZeroVector, CameraRotation, true);
+	//}
+
+	if (GetController())	
 	{
 		AddControllerYawInput(LookDirection.X);
 		AddControllerPitchInput(LookDirection.Y);
+
 	}
 }
 
