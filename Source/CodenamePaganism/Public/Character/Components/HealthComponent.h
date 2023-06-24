@@ -50,6 +50,9 @@ protected:
 private:
 	float CurrentHealth = 0.0f;
 
+	void StartRegenerating();
+	void Regenerate(float RegeneratedHealth);
+
 	UFUNCTION()
 	void OnTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 

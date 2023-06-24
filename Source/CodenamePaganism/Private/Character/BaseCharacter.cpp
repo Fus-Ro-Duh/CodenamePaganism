@@ -22,7 +22,7 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
 	SpringArmComponent->SetupAttachment(GetRootComponent());
-	SpringArmComponent->bUsePawnControlRotation = true;
+	SpringArmComponent->bUsePawnControlRotation = false;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
@@ -71,12 +71,6 @@ void ABaseCharacter::BeginPlay()
 	//HealthComponent->OnHealthChanged.AddUObject(this, &ABaseCharacter::OnHealthChanged);
 }
 
-void ABaseCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -87,7 +81,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	{
 		EnhancedInputComponent->BindAction(IAMove, ETriggerEvent::Triggered, this, &ABaseCharacter::Move);
 		EnhancedInputComponent->BindAction(IALook, ETriggerEvent::Triggered, this, &ABaseCharacter::Look);
-		EnhancedInputComponent->BindAction(IAJump, ETriggerEvent::Triggered, this, &ABaseCharacter::Jump);
+		EnhancedInputComponent->BindAction(IAJump, ETriggerEvent::Started, this, &ABaseCharacter::Jump);
 		EnhancedInputComponent->BindAction(IACrouch, ETriggerEvent::Started, this, &ABaseCharacter::Crouch);
 		EnhancedInputComponent->BindAction(IACrouch, ETriggerEvent::Completed, this, &ABaseCharacter::UnCrouch);
 		EnhancedInputComponent->BindAction(IAWalk, ETriggerEvent::Started, this, &ABaseCharacter::Walk);
@@ -114,7 +108,8 @@ void ABaseCharacter::Move(const FInputActionValue& Value)
 void ABaseCharacter::Look(const FInputActionValue& Value)
 {
 	//if (ActionState != EActionState::EAS_Unoccupied) return;
-
+	bUseControllerRotationYaw = !GetVelocity().IsZero();
+	
 	const FVector2D LookDirection = Value.Get<FVector2D>();
 	if (GetController())
 	{
@@ -145,7 +140,7 @@ void ABaseCharacter::Walk(const FInputActionValue& Value)
 
 void ABaseCharacter::Run(const FInputActionValue& Value)
 {
-	IsRunning = true;
+	IsRunning = !IsRunning;
 	IsWalking = false;
 	UE_LOG(LogLoad, Warning, TEXT("Running"));
 }
@@ -159,7 +154,6 @@ void ABaseCharacter::OnCameraCollisionBeginOverlap(UPrimitiveComponent* Overlapp
 {
 	CheckCameraOverlap();
 }
-
 void ABaseCharacter::OnCameraCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	CheckCameraOverlap();

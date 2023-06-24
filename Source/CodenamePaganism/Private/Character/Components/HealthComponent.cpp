@@ -27,6 +27,11 @@ void UHealthComponent::BeginPlay()
 	}
 }
 
+void UHealthComponent::Regenerate(float RegeneratedHealth)
+{
+
+}
+
 void UHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
 	if (Damage > 0.0f && !IsDead() && GetWorld())
@@ -35,6 +40,7 @@ void UHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage, const
 		GetWorld()->GetTimerManager().ClearTimer(RegerateTimerHandle);
 		if (IsDead())
 		{
+			//Killed(InstigatedBy);
 			OnDeath.Broadcast();
 		}
 		else if (AutoRegenerate)
@@ -61,7 +67,6 @@ void UHealthComponent::SetHealth(float NewHealth)
 	const auto NextHealth = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
 	const auto HealthDelta = NextHealth - CurrentHealth;
 	CurrentHealth = NextHealth;
-	OnHealthChanged.Broadcast(CurrentHealth, HealthDelta);
 }
 
 bool UHealthComponent::IsHealthFull()
