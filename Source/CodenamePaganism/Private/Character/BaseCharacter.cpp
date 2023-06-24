@@ -4,19 +4,25 @@
 #include "Character/BaseCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "MainPlayerController.h"
 #include "Components/InputComponent.h"
+#include "Character/Components/HealthComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/DamageEvents.h"
+#include "Character/Components/BaseMovementComponent.h"
 
-ABaseCharacter::ABaseCharacter()
+ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
+	Super(ObjInit.SetDefaultSubobjectClass<UBaseMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
 	SpringArmComponent->SetupAttachment(GetRootComponent());
-	SpringArmComponent->bUsePawnControlRotation = true;
+	SpringArmComponent->bUsePawnControlRotation = false;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
@@ -25,12 +31,33 @@ ABaseCharacter::ABaseCharacter()
 	CameraCollisionComponent->SetupAttachment(CameraComponent);
 	CameraCollisionComponent->SetSphereRadius(10.0f);
 	CameraCollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
+
+	LandedDelegate.AddDynamic(this, &ABaseCharacter::OnGroundLanded);
+}
+
+void ABaseCharacter::OnDeath()
+{
+	GetCharacterMovement()->DisableMovement();
+	SetLifeSpan(3.0f);
+
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetSimulatePhysics(true);
+
+	if (Controller)
+	{
+		Controller->ChangeState(NAME_Spectating);
+	}
 }
 
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	check(HealthComponent);
 	check(GetMesh());
 
 	check(CameraCollisionComponent);
@@ -39,23 +66,27 @@ void ABaseCharacter::BeginPlay()
 	CameraCollisionComponent->OnComponentEndOverlap.AddDynamic(this, &ABaseCharacter::OnCameraCollisionEndOverlap);
 
 	SetupPlayerInput();
-}
 
-void ABaseCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
+	HealthComponent->OnDeath.AddUObject(this, &ABaseCharacter::OnDeath);
+	//HealthComponent->OnHealthChanged.AddUObject(this, &ABaseCharacter::OnHealthChanged);
 }
 
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	check(PlayerInputComponent);
+
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(IAMove, ETriggerEvent::Triggered, this, &ABaseCharacter::Move);
 		EnhancedInputComponent->BindAction(IALook, ETriggerEvent::Triggered, this, &ABaseCharacter::Look);
-		EnhancedInputComponent->BindAction(IAJump, ETriggerEvent::Triggered, this, &ABaseCharacter::Jump);
+		EnhancedInputComponent->BindAction(IAJump, ETriggerEvent::Started, this, &ABaseCharacter::Jump);
+		EnhancedInputComponent->BindAction(IACrouch, ETriggerEvent::Started, this, &ABaseCharacter::Crouch);
+		EnhancedInputComponent->BindAction(IACrouch, ETriggerEvent::Completed, this, &ABaseCharacter::UnCrouch);
+		EnhancedInputComponent->BindAction(IAWalk, ETriggerEvent::Started, this, &ABaseCharacter::Walk);
+		EnhancedInputComponent->BindAction(IARun, ETriggerEvent::Started, this, &ABaseCharacter::Run);
+		EnhancedInputComponent->BindAction(IARun, ETriggerEvent::Completed, this, &ABaseCharacter::StopRun);
 	}
 }
 
@@ -77,7 +108,8 @@ void ABaseCharacter::Move(const FInputActionValue& Value)
 void ABaseCharacter::Look(const FInputActionValue& Value)
 {
 	//if (ActionState != EActionState::EAS_Unoccupied) return;
-
+	bUseControllerRotationYaw = !GetVelocity().IsZero();
+	
 	const FVector2D LookDirection = Value.Get<FVector2D>();
 	if (GetController())
 	{
@@ -91,11 +123,37 @@ void ABaseCharacter::Jump(const FInputActionValue& Value)
 	Super::Jump();
 }
 
+void ABaseCharacter::Crouch(const FInputActionValue& Value)
+{
+	Super::Crouch();
+}
+void ABaseCharacter::UnCrouch(const FInputActionValue& Value)
+{
+	Super::UnCrouch();
+}
+
+void ABaseCharacter::Walk(const FInputActionValue& Value)
+{
+	IsWalking = !IsWalking;
+	UE_LOG(LogLoad, Warning, TEXT("Walking"));
+}
+
+void ABaseCharacter::Run(const FInputActionValue& Value)
+{
+	IsRunning = !IsRunning;
+	IsWalking = false;
+	UE_LOG(LogLoad, Warning, TEXT("Running"));
+}
+void ABaseCharacter::StopRun(const FInputActionValue& Value)
+{
+	IsRunning = false;
+	UE_LOG(LogLoad, Warning, TEXT("not Running"), IsRunning);
+}
+
 void ABaseCharacter::OnCameraCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	CheckCameraOverlap();
 }
-
 void ABaseCharacter::OnCameraCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	CheckCameraOverlap();
@@ -103,7 +161,7 @@ void ABaseCharacter::OnCameraCollisionEndOverlap(UPrimitiveComponent* Overlapped
 
 void ABaseCharacter::CheckCameraOverlap()
 {
-	/*const auto HideMesh = CameraCollisionComponent->IsOverlappingComponent(GetCapsuleComponent());
+	const auto HideMesh = CameraCollisionComponent->IsOverlappingComponent(GetCapsuleComponent());
 	GetMesh()->SetOwnerNoSee(HideMesh);
 
 	TArray<USceneComponent*> MeshChildren;
@@ -116,7 +174,7 @@ void ABaseCharacter::CheckCameraOverlap()
 		{
 			MeshChildGeometry->SetOwnerNoSee(HideMesh);
 		}
-	}*/
+	}
 }
 
 void ABaseCharacter::SetupPlayerInput()
@@ -130,3 +188,13 @@ void ABaseCharacter::SetupPlayerInput()
 	}
 }
 
+void ABaseCharacter::OnGroundLanded(const FHitResult& Hit)
+{
+	const auto FallVelocityZ = -GetVelocity().Z;
+
+	if (FallVelocityZ > LandedDamageVelocity.X)
+	{
+		const auto FinalDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
+		TakeDamage(FinalDamage, FDamageEvent(), nullptr, nullptr);
+	}
+}

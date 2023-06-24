@@ -22,7 +22,9 @@ public class CodenamePaganism : ModuleRules
             new string[]
             {
                 "CodenamePaganism/Public/Character",
-                "CodenamePaganism/Public/Character/Components"
+                "CodenamePaganism/Public/Character/Components",
+                "CodenamePaganism/Public/Weapons/Melee"
+                //"CodenamePaganism/Public/Weapons/Range"
             });
 
         // Uncomment if you are using Slate UI
