@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "WeaponComponent.generated.h"
 
-
+class ABaseMeleeWeapon;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class CODENAMEPAGANISM_API UWeaponComponent : public UActorComponent
@@ -15,11 +15,19 @@ class CODENAMEPAGANISM_API UWeaponComponent : public UActorComponent
 
 public:	
 	UWeaponComponent();
+	void Attack();
 
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	FName WeaponEquipSocketName = "HandWithSword";
 
-		
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	ABaseMeleeWeapon* MeleeWeapon = nullptr;
+
+private:	
+	void SpawnWeapons();
+	void AttachToWeaponSocket(ABaseMeleeWeapon* Weapon, USceneComponent* SceneComponent, FName& SocketName);
+	void EquipWeapon(ABaseMeleeWeapon* CurrentWeapon);
 };

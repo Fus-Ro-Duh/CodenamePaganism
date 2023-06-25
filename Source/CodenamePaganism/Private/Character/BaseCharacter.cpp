@@ -9,6 +9,7 @@
 #include "MainPlayerController.h"
 #include "Components/InputComponent.h"
 #include "Character/Components/HealthComponent.h"
+#include "Character/Components/WeaponComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -40,6 +41,7 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	CameraCollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
+	WeaponComponent = CreateDefaultSubobject<UWeaponComponent>("WeaponComponent");
 
 	LandedDelegate.AddDynamic(this, &ABaseCharacter::OnGroundLanded);
 }
@@ -83,6 +85,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	check(PlayerInputComponent);
+	check(WeaponComponent);
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
@@ -94,6 +97,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(IAWalk, ETriggerEvent::Started, this, &ABaseCharacter::Walk);
 		EnhancedInputComponent->BindAction(IARun, ETriggerEvent::Started, this, &ABaseCharacter::Run);
 		EnhancedInputComponent->BindAction(IARun, ETriggerEvent::Completed, this, &ABaseCharacter::StopRun);
+		EnhancedInputComponent->BindAction(IAAttack, ETriggerEvent::Started, this, &ABaseCharacter::Attack);
 	}
 }
 
@@ -153,6 +157,12 @@ void ABaseCharacter::Run(const FInputActionValue& Value)
 	IsWalking = false;
 	UE_LOG(LogLoad, Warning, TEXT("Running"));
 }
+
+void ABaseCharacter::Attack(const FInputActionValue& Value)
+{
+	WeaponComponent->Attack();
+}
+
 void ABaseCharacter::StopRun(const FInputActionValue& Value)
 {
 	IsRunning = false;

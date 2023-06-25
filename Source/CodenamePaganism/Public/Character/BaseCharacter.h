@@ -13,6 +13,7 @@ class USphereComponent;
 class UInputMappingContext;
 class UInputAction;
 class UHealthComponent;
+class UWeaponComponent;
 
 UCLASS()
 class CODENAMEPAGANISM_API ABaseCharacter : public ACharacter
@@ -46,8 +47,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USphereComponent* CameraCollisionComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UHealthComponent* HealthComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UWeaponComponent* WeaponComponent;
 
 	//Inputs
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
@@ -71,6 +75,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
 	UInputAction* IARun;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
+	UInputAction* IAAttack;
+
 public:	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -83,7 +90,7 @@ private:
 	void UnCrouch(const FInputActionValue& Value);
 	void Walk(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
-	void StopWalk(const FInputActionValue& Value);
+	void Attack(const FInputActionValue& Value);
 	void StopRun(const FInputActionValue& Value);
 
 	//Camera collision functions
