@@ -4,6 +4,7 @@
 #include "Character/Components/WeaponComponent.h"
 #include "Weapons/Melee/BaseMeleeWeapon.h"
 #include "GameFramework/Character.h"
+#include "UObject/UObjectBaseUtility.h"
 
 UWeaponComponent::UWeaponComponent()
 {
@@ -13,14 +14,14 @@ UWeaponComponent::UWeaponComponent()
 
 void UWeaponComponent::Attack()
 {
-	MeleeWeapon->Attack();
+	CurrentWeapon->Attack();
 }
 
 void UWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	SpawnWeapons();
-	EquipWeapon(MeleeWeapon);
+	//EquipWeapon(CurrentWeapon);
 }
 
 void UWeaponComponent::SpawnWeapons()
@@ -28,26 +29,32 @@ void UWeaponComponent::SpawnWeapons()
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (!Character || !GetWorld()) return;
 
-	auto Weapon = GetWorld()->SpawnActor<ABaseMeleeWeapon>();
+	CurrentWeapon = GetWorld()->SpawnActor<ABaseMeleeWeapon>(MeleeWeapon);
 
-	Weapon->SetOwner(Character);
+	CurrentWeapon->SetOwner(Character);
 
-	AttachToWeaponSocket(Weapon, Character->GetMesh(), WeaponEquipSocketName);
+	if (!CurrentWeapon) return;
+	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
+	CurrentWeapon->AttachToComponent(Character->GetMesh(), AttachmentRules, WeaponEquipSocketName);
+
+	//AttachToWeaponSocket(Weapon, Character->GetMesh(), WeaponEquipSocketName);
 }
 
-void UWeaponComponent::AttachToWeaponSocket(ABaseMeleeWeapon* Weapon, USceneComponent* SceneComponent, FName& SocketName)
+
+
+/*void UWeaponComponent::AttachToWeaponSocket(ABaseMeleeWeapon* Weapon, USceneComponent* SceneComponent, FName& SocketName)
 {
-	if (!Weapon || !SceneComponent) return;
+	if (!CurrentWeapon || !SceneComponent) return;
 
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
 	Weapon->AttachToComponent(SceneComponent, AttachmentRules, SocketName);
-}
+}*/
 
-void UWeaponComponent::EquipWeapon(ABaseMeleeWeapon* CurrentWeapon)
+/*void UWeaponComponent::EquipWeapon(ABaseMeleeWeapon* CurrentWeapon)
 {
 	if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
 	{
 		AttachToWeaponSocket(CurrentWeapon, Character->GetMesh(), WeaponEquipSocketName);
 	}
-}
+}*/
 

@@ -8,6 +8,7 @@
 #include "Engine/DamageEvents.h"
 #include "Animations/AnimUtils.h"
 #include "Animations/SwingEndAnimNotify.h"
+#include "Animations/SwingStartAnimNotify.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogWeapon, All, All);
 
@@ -23,9 +24,10 @@ void ABaseMeleeWeapon::Attack()
 {
 	if (const auto Character = Cast<ACharacter>(GetOwner()))
 	{
+
 		Character->PlayAnimMontage(AttackAnimation);
 
-		GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &ABaseMeleeWeapon::SwingWeapon, 0.1f, true, 0.0f);
+		GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &ABaseMeleeWeapon::SwingWeapon, 0.01f, true, 0.5f);
 	}
 }
 
@@ -50,6 +52,7 @@ void ABaseMeleeWeapon::GetLineTrace(FHitResult& HitResult)
 		CollisionParams.bReturnPhysicalMaterial = true;
 
 		GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility, CollisionParams);
+		DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 3.0f, 0, 3.0f);
 	}
 }
 
@@ -77,10 +80,16 @@ void ABaseMeleeWeapon::SwingWeapon()
 	{
 		MakeDamage(HitResult);
 	}
+	UE_LOG(LogLoad, Warning, TEXT("SWstart"));
 }
 
 void ABaseMeleeWeapon::InitAnimations()
 {
+	auto SwingStartNotify = AnimUtils::FindNotifyByClass<USwingStartAnimNotify>(AttackAnimation);
+	if (SwingStartNotify)
+	{
+		SwingStartNotify->OnNotified.AddUObject(this, &ABaseMeleeWeapon::SwingWeapon);
+	}
 	auto SwingEndNotify = AnimUtils::FindNotifyByClass<USwingEndAnimNotify>(AttackAnimation);
 	if (SwingEndNotify)
 	{
@@ -95,6 +104,7 @@ void ABaseMeleeWeapon::InitAnimations()
 
 void ABaseMeleeWeapon::SwingEnd()
 {
+	UE_LOG(LogLoad, Warning, TEXT("SWend"));
 	GetWorld()->GetTimerManager().ClearTimer(AttackTimerHandle);
 }
 

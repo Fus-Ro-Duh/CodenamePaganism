@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "WeaponComponent.generated.h"
 
+class UAnimMontage;
 class ABaseMeleeWeapon;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -21,13 +22,19 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	FName WeaponEquipSocketName = "HandWithSword";
+	FName WeaponEquipSocketName = "WeaponSocket";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	ABaseMeleeWeapon* MeleeWeapon = nullptr;
+	TSubclassOf<ABaseMeleeWeapon> MeleeWeapon;
+
+
 
 private:	
+	UPROPERTY()
+		ABaseMeleeWeapon* CurrentWeapon = nullptr;
+
 	void SpawnWeapons();
 	void AttachToWeaponSocket(ABaseMeleeWeapon* Weapon, USceneComponent* SceneComponent, FName& SocketName);
 	void EquipWeapon(ABaseMeleeWeapon* CurrentWeapon);
+
 };

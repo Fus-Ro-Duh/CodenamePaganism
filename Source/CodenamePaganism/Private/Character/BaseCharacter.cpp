@@ -99,6 +99,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(IARun, ETriggerEvent::Completed, this, &ABaseCharacter::StopRun);
 		EnhancedInputComponent->BindAction(IAAttack, ETriggerEvent::Started, this, &ABaseCharacter::Attack);
 	}
+	//PlayerInputComponent->BindAction("Attack", IE_Pressed, WeaponComponent, &UWeaponComponent::Attack);
 }
 
 void ABaseCharacter::Move(const FInputActionValue& Value)
@@ -160,7 +161,9 @@ void ABaseCharacter::Run(const FInputActionValue& Value)
 
 void ABaseCharacter::Attack(const FInputActionValue& Value)
 {
+
 	WeaponComponent->Attack();
+
 }
 
 void ABaseCharacter::StopRun(const FInputActionValue& Value)
