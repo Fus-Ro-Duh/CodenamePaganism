@@ -25,9 +25,13 @@ protected:
 	FName WeaponEquipSocketName = "WeaponSocket";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+<<<<<<< HEAD
 	TSubclassOf<ABaseMeleeWeapon> MeleeWeapon;
 
 
+=======
+	ABaseMeleeWeapon* MeleeWeapon;
+>>>>>>> 5dab38fca0db9acc9c356f809a3c2e4a39db9671
 
 private:	
 	UPROPERTY()

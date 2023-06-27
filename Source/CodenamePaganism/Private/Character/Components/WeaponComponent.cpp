@@ -29,6 +29,7 @@ void UWeaponComponent::SpawnWeapons()
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (!Character || !GetWorld()) return;
 
+<<<<<<< HEAD
 	CurrentWeapon = GetWorld()->SpawnActor<ABaseMeleeWeapon>(MeleeWeapon);
 
 	CurrentWeapon->SetOwner(Character);
@@ -38,6 +39,14 @@ void UWeaponComponent::SpawnWeapons()
 	CurrentWeapon->AttachToComponent(Character->GetMesh(), AttachmentRules, WeaponEquipSocketName);
 
 	//AttachToWeaponSocket(Weapon, Character->GetMesh(), WeaponEquipSocketName);
+=======
+	auto Weapon = GetWorld()->SpawnActor<ABaseMeleeWeapon>();
+	if (Weapon)
+	{
+		Weapon->SetOwner(Character);
+		AttachToWeaponSocket(Weapon, Character->GetMesh(), WeaponEquipSocketName);
+	}
+>>>>>>> 5dab38fca0db9acc9c356f809a3c2e4a39db9671
 }
 
 
