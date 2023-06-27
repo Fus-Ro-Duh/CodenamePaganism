@@ -29,10 +29,11 @@ void UWeaponComponent::SpawnWeapons()
 	if (!Character || !GetWorld()) return;
 
 	auto Weapon = GetWorld()->SpawnActor<ABaseMeleeWeapon>();
-
-	Weapon->SetOwner(Character);
-
-	AttachToWeaponSocket(Weapon, Character->GetMesh(), WeaponEquipSocketName);
+	if (Weapon)
+	{
+		Weapon->SetOwner(Character);
+		AttachToWeaponSocket(Weapon, Character->GetMesh(), WeaponEquipSocketName);
+	}
 }
 
 void UWeaponComponent::AttachToWeaponSocket(ABaseMeleeWeapon* Weapon, USceneComponent* SceneComponent, FName& SocketName)

@@ -21,10 +21,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	FName WeaponEquipSocketName = "HandWithSword";
+	FName WeaponEquipSocketName = "WeaponSocket";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	ABaseMeleeWeapon* MeleeWeapon = nullptr;
+	ABaseMeleeWeapon* MeleeWeapon;
 
 private:	
 	void SpawnWeapons();
