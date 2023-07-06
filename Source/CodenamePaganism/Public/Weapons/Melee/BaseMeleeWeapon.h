@@ -13,7 +13,7 @@ UCLASS()
 class CODENAMEPAGANISM_API ABaseMeleeWeapon : public AActor
 {
 	GENERATED_BODY()
-	
+
 public:
 	ABaseMeleeWeapon();
 
@@ -25,19 +25,19 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sockets")
-	FName StartLineSocket = "Start";
+		FName StartLineSocket = "Start";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sockets")
-	FName EndLineSocket = "End";
+		FName EndLineSocket = "End";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponData")
-	USkeletalMeshComponent* WeaponMesh;
+		USkeletalMeshComponent* WeaponMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimMontage* AttackAnimation;
+		UAnimMontage* AttackAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
-	float DamageAmount = 10;
+		float DamageAmount = 10;
 
 private:
 	void GetLineTrace(FHitResult& HitResult);

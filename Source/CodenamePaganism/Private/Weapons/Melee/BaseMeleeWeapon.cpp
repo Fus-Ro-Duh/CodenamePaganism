@@ -34,7 +34,7 @@ void ABaseMeleeWeapon::Attack()
 void ABaseMeleeWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	InitAnimations();
 
 	check(WeaponMesh);
@@ -107,5 +107,4 @@ void ABaseMeleeWeapon::SwingEnd()
 	UE_LOG(LogLoad, Warning, TEXT("SWend"));
 	GetWorld()->GetTimerManager().ClearTimer(AttackTimerHandle);
 }
-
 

@@ -78,9 +78,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
 	UInputAction* IAAttack;
 
-
-
-
 public:	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -95,6 +92,8 @@ private:
 	void Run(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
 	void StopRun(const FInputActionValue& Value);
+	void Load(const FInputActionValue& Value);
+	void Shoot(const FInputActionValue& Value);
 
 	//Camera collision functions
 	void CheckCameraOverlap();

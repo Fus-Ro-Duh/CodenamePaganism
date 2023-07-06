@@ -8,6 +8,7 @@
 
 class UAnimMontage;
 class ABaseMeleeWeapon;
+class ABaseRangeWeapon;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class CODENAMEPAGANISM_API UWeaponComponent : public UActorComponent
@@ -17,6 +18,9 @@ class CODENAMEPAGANISM_API UWeaponComponent : public UActorComponent
 public:	
 	UWeaponComponent();
 	void Attack();
+	void StartAiming();
+	void Shoot();
+	ABaseRangeWeapon* GetCurrentWeapon() { return CurrentWeapon; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -25,20 +29,14 @@ protected:
 	FName WeaponEquipSocketName = "WeaponSocket";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-<<<<<<< HEAD
-	TSubclassOf<ABaseMeleeWeapon> MeleeWeapon;
-
-
-=======
-	ABaseMeleeWeapon* MeleeWeapon;
->>>>>>> 5dab38fca0db9acc9c356f809a3c2e4a39db9671
+	TSubclassOf<ABaseRangeWeapon> Weapon;
 
 private:	
 	UPROPERTY()
-		ABaseMeleeWeapon* CurrentWeapon = nullptr;
+	ABaseRangeWeapon* CurrentWeapon = nullptr;
 
 	void SpawnWeapons();
-	void AttachToWeaponSocket(ABaseMeleeWeapon* Weapon, USceneComponent* SceneComponent, FName& SocketName);
-	void EquipWeapon(ABaseMeleeWeapon* CurrentWeapon);
-
+	//void AttachToWeaponSocket(ABaseMeleeWeapon* Weapon, USceneComponent* SceneComponent, FName& SocketName);
+	void AttachToWeaponSocket(ABaseRangeWeapon* Weapon, USceneComponent* SceneComponent, FName& SocketName);
+	//void EquipWeapon(ABaseMeleeWeapon* CurrentWeapon);
 };

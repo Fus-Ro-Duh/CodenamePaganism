@@ -97,7 +97,9 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(IAWalk, ETriggerEvent::Started, this, &ABaseCharacter::Walk);
 		EnhancedInputComponent->BindAction(IARun, ETriggerEvent::Started, this, &ABaseCharacter::Run);
 		EnhancedInputComponent->BindAction(IARun, ETriggerEvent::Completed, this, &ABaseCharacter::StopRun);
-		EnhancedInputComponent->BindAction(IAAttack, ETriggerEvent::Started, this, &ABaseCharacter::Attack);
+		//EnhancedInputComponent->BindAction(IAAttack, ETriggerEvent::Started, this, &ABaseCharacter::Attack);
+		EnhancedInputComponent->BindAction(IAAttack, ETriggerEvent::Started, this, &ABaseCharacter::Load);
+		EnhancedInputComponent->BindAction(IAAttack, ETriggerEvent::Completed, this, &ABaseCharacter::Shoot);
 	}
 	//PlayerInputComponent->BindAction("Attack", IE_Pressed, WeaponComponent, &UWeaponComponent::Attack);
 }
@@ -161,15 +163,23 @@ void ABaseCharacter::Run(const FInputActionValue& Value)
 
 void ABaseCharacter::Attack(const FInputActionValue& Value)
 {
-
 	WeaponComponent->Attack();
-
 }
 
 void ABaseCharacter::StopRun(const FInputActionValue& Value)
 {
 	IsRunning = false;
 	UE_LOG(LogLoad, Warning, TEXT("not Running"), IsRunning);
+}
+
+void ABaseCharacter::Load(const FInputActionValue& Value)
+{
+	WeaponComponent->StartAiming();
+}
+
+void ABaseCharacter::Shoot(const FInputActionValue& Value)
+{
+	WeaponComponent->Shoot();
 }
 
 void ABaseCharacter::OnCameraCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

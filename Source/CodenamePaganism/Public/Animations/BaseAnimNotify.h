@@ -15,6 +15,5 @@ class CODENAMEPAGANISM_API UBaseAnimNotify : public UAnimNotify
 	
 public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
-
 	FOnNotifiedSignature OnNotified;
 };
