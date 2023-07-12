@@ -23,17 +23,22 @@ ABaseRangeWeapon::ABaseRangeWeapon()
 
 void ABaseRangeWeapon::Load()
 {
+	UE_LOG(LogLoad, Warning, TEXT("Load"));
 	if (const auto Character = Cast<ACharacter>(GetOwner()))
 	{
 		Character->PlayAnimMontage(LoadAnimation);
 	}
+
+
+
 }
 
 void ABaseRangeWeapon::Release()
 {
+	UE_LOG(LogLoad, Warning, TEXT("Release"));
 	if (GetWorld())
 	{
-		GetWorld()->GetTimerManager().ClearTimer(LoadTimerHandle);
+		GetWorld()->GetTimerManager().ClearTimer(LoadTimerHandle);	
 	}
 
 	ShotPower = 0.0f;
@@ -44,17 +49,24 @@ void ABaseRangeWeapon::Release()
 		CurArrowProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		CurArrowProjectile->ShootArrow(ShotPower);
 	}
+	if (const auto Character = Cast<ACharacter>(GetOwner()))
+	{
+		Character->PlayAnimMontage(ReleaseAnimation);
+	}
 }
 
 void ABaseRangeWeapon::BeginPlay()
 {
+
 	Super::BeginPlay();
-	
+
 	check(WeaponMesh);
+	InitAnimations();
 }
 
 void ABaseRangeWeapon::IncreaseShotPower()
 {
+	UE_LOG(LogLoad, Warning, TEXT("Increase"));
 	ShotPower = FMath::Clamp(ShotPower++, 0.0f, MaxShotPower);
 	if (FMath::IsNearlyEqual(ShotPower,MaxShotPower))
 	{
@@ -87,7 +99,7 @@ void ABaseRangeWeapon::StartIncreasingPower()
 	GetWorld()->GetTimerManager().SetTimer(LoadTimerHandle, this, &ABaseRangeWeapon::IncreaseShotPower, PowerIncreaseRate, true);
 }
 
-void ABaseRangeWeapon::InitAnimations()
+void ABaseRangeWeapon::InitAnimations()//works
 {
 	auto ArrowSpawnNotify = AnimUtils::FindNotifyByClass<UArrowSpawnAnimNotify>(LoadAnimation);
 	if (ArrowSpawnNotify)
@@ -106,14 +118,16 @@ void ABaseRangeWeapon::InitAnimations()
 
 void ABaseRangeWeapon::SpawnArrow()
 {
+
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (!Character || !GetWorld()) return;
-
+	UE_LOG(LogLoad, Warning, TEXT("Spawn1"));
 	CurArrowProjectile = GetWorld()->SpawnActor<ABaseProjectile>(ArrowProjectile);
 
 	CurArrowProjectile->SetOwner(Character);
 
 	if (!CurArrowProjectile) return;
+	UE_LOG(LogLoad, Warning, TEXT("Spawn2"));
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
 	CurArrowProjectile->AttachToComponent(Character->GetMesh(), AttachmentRules, ArrowSocketName);
 }
