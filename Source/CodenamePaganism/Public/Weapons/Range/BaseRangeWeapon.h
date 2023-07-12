@@ -59,6 +59,4 @@ private:
 	void StartIncreasingPower();
 	void InitAnimations();
 	void SpawnArrow();
-
-	ABaseProjectile* CurArrowProjectile;
 };

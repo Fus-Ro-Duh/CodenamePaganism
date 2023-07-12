@@ -28,9 +28,6 @@ void ABaseRangeWeapon::Load()
 	{
 		Character->PlayAnimMontage(LoadAnimation);
 	}
-
-
-
 }
 
 void ABaseRangeWeapon::Release()
@@ -44,10 +41,10 @@ void ABaseRangeWeapon::Release()
 	ShotPower = 0.0f;
 	CameraShake = 1.0f;
 
-	if (CurArrowProjectile)
+	if (false)
 	{
-		CurArrowProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		CurArrowProjectile->ShootArrow(ShotPower);
+		//CurArrowProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		//CurArrowProjectile->ShootArrow(ShotPower);
 	}
 	if (const auto Character = Cast<ACharacter>(GetOwner()))
 	{
@@ -99,7 +96,7 @@ void ABaseRangeWeapon::StartIncreasingPower()
 	GetWorld()->GetTimerManager().SetTimer(LoadTimerHandle, this, &ABaseRangeWeapon::IncreaseShotPower, PowerIncreaseRate, true);
 }
 
-void ABaseRangeWeapon::InitAnimations()//works
+void ABaseRangeWeapon::InitAnimations()
 {
 	auto ArrowSpawnNotify = AnimUtils::FindNotifyByClass<UArrowSpawnAnimNotify>(LoadAnimation);
 	if (ArrowSpawnNotify)
@@ -118,16 +115,16 @@ void ABaseRangeWeapon::InitAnimations()//works
 
 void ABaseRangeWeapon::SpawnArrow()
 {
-
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (!Character || !GetWorld()) return;
 	UE_LOG(LogLoad, Warning, TEXT("Spawn1"));
-	CurArrowProjectile = GetWorld()->SpawnActor<ABaseProjectile>(ArrowProjectile);
-
-	CurArrowProjectile->SetOwner(Character);
-
+	
+	ABaseRangeWeapon* CurArrowProjectile = GetWorld()->SpawnActor<ABaseRangeWeapon>(ArrowProjectile);
 	if (!CurArrowProjectile) return;
 	UE_LOG(LogLoad, Warning, TEXT("Spawn2"));
+
+	CurArrowProjectile->SetOwner(Character);
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
+
 	CurArrowProjectile->AttachToComponent(Character->GetMesh(), AttachmentRules, ArrowSocketName);
 }
