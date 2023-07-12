@@ -11,6 +11,7 @@
 #include "Weapons/Range/Projectile/BaseProjectile.h"
 #include "Animations/AnimUtils.h"
 #include "Animations/ArrowSpawnAnimNotify.h"
+#include "Animations/LoadAnimNotify.h"
 #include "Engine/EngineTypes.h"
 #include "Weapons/Melee/BaseMeleeWeapon.h"
 
@@ -108,11 +109,12 @@ void ABaseRangeWeapon::InitAnimations()
 	{
 		ArrowSpawnNotify->OnNotified.AddUObject(this, &ABaseRangeWeapon::SpawnArrow);
 	}
-	else if (true)
+	auto LoadNotify = AnimUtils::FindNotifyByClass<ULoadAnimNotify>(LoadAnimation);
+	if (LoadNotify)
 	{
-
+		LoadNotify->OnNotified.AddUObject(this, &ABaseRangeWeapon::StartIncreasingPower);
 	}
-	else
+	if(!ArrowSpawnNotify || !LoadNotify)
 	{
 		checkNoEntry();
 	}
