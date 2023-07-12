@@ -12,6 +12,7 @@
 #include "Animations/AnimUtils.h"
 #include "Animations/ArrowSpawnAnimNotify.h"
 #include "Engine/EngineTypes.h"
+#include "Weapons/Melee/BaseMeleeWeapon.h"
 
 ABaseRangeWeapon::ABaseRangeWeapon()
 {
@@ -38,18 +39,22 @@ void ABaseRangeWeapon::Release()
 		GetWorld()->GetTimerManager().ClearTimer(LoadTimerHandle);	
 	}
 
+
+
+	if (CurArrowProjectile)
+	{
+
+		CurArrowProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		CurArrowProjectile->ShootArrow(ShotPower);
+		if (const auto Character = Cast<ACharacter>(GetOwner()))
+		{
+			UE_LOG(LogLoad, Warning, TEXT("Check"));
+			Character->PlayAnimMontage(ReleaseAnimation);
+		}
+	}
 	ShotPower = 0.0f;
 	CameraShake = 1.0f;
 
-	if (false)
-	{
-		//CurArrowProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		//CurArrowProjectile->ShootArrow(ShotPower);
-	}
-	if (const auto Character = Cast<ACharacter>(GetOwner()))
-	{
-		Character->PlayAnimMontage(ReleaseAnimation);
-	}
 }
 
 void ABaseRangeWeapon::BeginPlay()
@@ -117,11 +122,9 @@ void ABaseRangeWeapon::SpawnArrow()
 {
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (!Character || !GetWorld()) return;
-	UE_LOG(LogLoad, Warning, TEXT("Spawn1"));
 	
-	ABaseRangeWeapon* CurArrowProjectile = GetWorld()->SpawnActor<ABaseRangeWeapon>(ArrowProjectile);
+	CurArrowProjectile = GetWorld()->SpawnActor<ABaseProjectile>(ArrowProjectile);
 	if (!CurArrowProjectile) return;
-	UE_LOG(LogLoad, Warning, TEXT("Spawn2"));
 
 	CurArrowProjectile->SetOwner(Character);
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);

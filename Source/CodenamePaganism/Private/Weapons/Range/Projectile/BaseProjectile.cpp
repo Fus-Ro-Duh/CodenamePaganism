@@ -37,6 +37,7 @@ void ABaseProjectile::BeginPlay()
 }
 void ABaseProjectile::ShootArrow(float Shotpower)
 {
+	UE_LOG(LogLoad, Warning, TEXT("ShootPower %f"), Shotpower);
 	MovementComponent->InitialSpeed = CalculateVelocity(Shotpower);
 }
 

@@ -52,6 +52,7 @@ protected:
 	FName ArrowSocketName = "ArrowSocketName";
 
 private:
+	ABaseProjectile* CurArrowProjectile = nullptr;
 	float ShotPower = 0.0f;
 	float CameraShake = 1.0f;
 	void IncreaseShotPower();
