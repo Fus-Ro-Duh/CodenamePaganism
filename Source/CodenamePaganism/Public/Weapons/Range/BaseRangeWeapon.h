@@ -17,6 +17,7 @@ class CODENAMEPAGANISM_API ABaseRangeWeapon : public AActor
 public:	
 	ABaseRangeWeapon();
 	FTimerHandle LoadTimerHandle;
+	FTimerHandle RestoringFOVTimerHandle;
 
 	void Load();
 	void Release();
@@ -45,8 +46,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	TSubclassOf<ABaseProjectile> ArrowProjectile;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraShake")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	TSubclassOf<UCameraShakeBase> CameraShakeBase;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float CameraFOVDelta = 20;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float CameraFOVRestoreRate = 0.1f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Shot")
 	FName ArrowSocketName = "ArrowSocketName";
@@ -61,4 +68,10 @@ private:
 	void StartIncreasingPower();
 	void InitAnimations();
 	void SpawnArrow();
+	float DefaultCameraFOV = 90.0f;
+	float CurrentCameraFOV = DefaultCameraFOV;
+	float MinCameraFOV = DefaultCameraFOV - CameraFOVDelta;
+	void GetDefaultCameraFOV();
+	void RestoreFOV();
+	void SetFOV();
 };

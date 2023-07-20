@@ -57,22 +57,25 @@ void ABaseRangeWeapon::Release()
 		}
 		ShotPower = 0.0f;
 		CameraShake = 0.0f;
+		GetWorldTimerManager().SetTimer(RestoringFOVTimerHandle, this, &ABaseRangeWeapon::RestoreFOV, CameraFOVRestoreRate, true);
 	}
 
 }
 
 void ABaseRangeWeapon::BeginPlay()
 {
-
 	Super::BeginPlay();
 
 	check(WeaponMesh);
 	InitAnimations();
+	GetDefaultCameraFOV();
 }
 
 void ABaseRangeWeapon::IncreaseShotPower()
 {
 	ShotPower = FMath::Clamp(ShotPower+1, 0.0f, MaxShotPower);
+	CurrentCameraFOV = FMath::Clamp(CurrentCameraFOV - 1, MinCameraFOV, DefaultCameraFOV);
+	SetFOV();
 	if (FMath::IsNearlyEqual(ShotPower,MaxShotPower))
 	{
 		IncreaseCameraShake();
@@ -96,7 +99,7 @@ void ABaseRangeWeapon::IncreaseCameraShake()
 
 void ABaseRangeWeapon::StartIncreasingPower()
 {
-	GetWorld()->GetTimerManager().SetTimer(LoadTimerHandle, this, &ABaseRangeWeapon::IncreaseShotPower, PowerIncreaseRate, true);
+	GetWorldTimerManager().SetTimer(LoadTimerHandle, this, &ABaseRangeWeapon::IncreaseShotPower, PowerIncreaseRate, true);
 }
 
 void ABaseRangeWeapon::InitAnimations()
@@ -129,4 +132,31 @@ void ABaseRangeWeapon::SpawnArrow()
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
 
 	CurArrowProjectile->AttachToComponent(Character->GetMesh(), AttachmentRules, ArrowSocketName);
+}
+
+void ABaseRangeWeapon::GetDefaultCameraFOV()
+{
+	if(APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0))
+	{
+		DefaultCameraFOV = CameraManager->GetFOVAngle();
+		CurrentCameraFOV = DefaultCameraFOV;
+	}
+}
+
+void ABaseRangeWeapon::RestoreFOV()
+{
+	CurrentCameraFOV= CurrentCameraFOV+0.1f;
+	SetFOV();
+	if (FMath::IsNearlyEqual(CurrentCameraFOV, DefaultCameraFOV))
+	{
+		GetWorldTimerManager().ClearTimer(RestoringFOVTimerHandle);
+	}
+}
+
+void ABaseRangeWeapon::SetFOV()
+{
+	if (APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0))
+	{
+		CameraManager->SetFOV(CurrentCameraFOV);
+	}
 }
