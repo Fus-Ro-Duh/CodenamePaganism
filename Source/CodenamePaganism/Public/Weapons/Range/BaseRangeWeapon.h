@@ -53,6 +53,7 @@ protected:
 
 private:
 	ABaseProjectile* CurArrowProjectile = nullptr;
+	UCameraShakeBase* CurCameraShakeBase = nullptr;
 	float ShotPower = 0.0f;
 	float CameraShake = 1.0f;
 	void IncreaseShotPower();

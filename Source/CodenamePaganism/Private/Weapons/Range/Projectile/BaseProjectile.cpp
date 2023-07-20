@@ -10,35 +10,38 @@ ABaseProjectile::ABaseProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	CollisionComponent = CreateDefaultSubobject<USphereComponent>("SphereComponent");
+	ProjectileMesh = CreateAbstractDefaultSubobject<USkeletalMeshComponent>("ProjectileMesh");
+	ProjectileMesh->SetupAttachment(RootComponent);
+	ProjectileMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	CollisionComponent = CreateAbstractDefaultSubobject<USphereComponent>("CollisionComponent");
 	CollisionComponent->InitSphereRadius(5.0f);
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	CollisionComponent->bReturnMaterialOnMove = true;
-	SetRootComponent(CollisionComponent);
+	CollisionComponent->SetupAttachment(RootComponent);
 
 	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComponent");
-	MovementComponent->ProjectileGravityScale = 1.0f;
-
+	MovementComponent->ProjectileGravityScale = 0.0f;
 }
 
 void ABaseProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	check(ProjectileMesh);
 	check(CollisionComponent);
 	check(MovementComponent);
 
-	MovementComponent->Velocity = ShotDirection * MovementComponent->InitialSpeed;
+	MovementComponent->InitialSpeed = 0.f;
 	CollisionComponent->IgnoreActorWhenMoving(GetOwner(), true);
 	CollisionComponent->OnComponentHit.AddDynamic(this, &ABaseProjectile::OnProjectileHit);
-
-	SetLifeSpan(LifeSeconds);
 }
 void ABaseProjectile::ShootArrow(float Shotpower)
 {
-	UE_LOG(LogLoad, Warning, TEXT("ShootPower %f"), Shotpower);
-	MovementComponent->InitialSpeed = CalculateVelocity(Shotpower);
+	MovementComponent->SetVelocityInLocalSpace(FVector(0, 0, CalculateVelocity(Shotpower)));
+	MovementComponent->ProjectileGravityScale = 1.0f;
 }
 
 float ABaseProjectile::CalculateVelocity(float Shotpower)
@@ -48,20 +51,21 @@ float ABaseProjectile::CalculateVelocity(float Shotpower)
 
 void ABaseProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (!GetWorld()) return;
+	if (GetWorld())
+	{
+		MovementComponent->StopMovementImmediately();
 
-	MovementComponent->StopMovementImmediately();
-
-	UGameplayStatics::ApplyRadialDamage(GetWorld(),
-		DamageAmount,
-		GetActorLocation(),
-		DamageRadius,
-		UDamageType::StaticClass(),
-		{},
-		this,
-		GetController(),
-		true);
-
+		UGameplayStatics::ApplyRadialDamage(GetWorld(),
+			DamageAmount,
+			GetActorLocation(),
+			DamageRadius,
+			UDamageType::StaticClass(),
+			{},
+			this,
+			GetController(),
+			true);
+	}
+	
 	Destroy();
 }
 

@@ -23,14 +23,17 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shot")
+	USkeletalMeshComponent* ProjectileMesh;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Shot")
+	USphereComponent* CollisionComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Shot")
 	FVector2D ShotPower = FVector2D(1.0f, 10.f);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Shot")
 	FVector2D ProjectileVelocity = FVector2D(200.0f, 1200.0f);
-
-	UPROPERTY(VisibleDefaultsOnly, Category = "Shot")
-	USphereComponent* CollisionComponent;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Shot")
 	UProjectileMovementComponent* MovementComponent;

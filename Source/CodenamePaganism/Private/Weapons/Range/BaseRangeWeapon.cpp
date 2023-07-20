@@ -25,7 +25,6 @@ ABaseRangeWeapon::ABaseRangeWeapon()
 
 void ABaseRangeWeapon::Load()
 {
-	UE_LOG(LogLoad, Warning, TEXT("Load"));
 	if (const auto Character = Cast<ACharacter>(GetOwner()))
 	{
 		Character->PlayAnimMontage(LoadAnimation);
@@ -34,27 +33,31 @@ void ABaseRangeWeapon::Load()
 
 void ABaseRangeWeapon::Release()
 {
-	UE_LOG(LogLoad, Warning, TEXT("Release"));
 	if (GetWorld())
 	{
-		GetWorld()->GetTimerManager().ClearTimer(LoadTimerHandle);	
-	}
+		GetWorld()->GetTimerManager().ClearTimer(LoadTimerHandle);
 
-
-
-	if (CurArrowProjectile)
-	{
-
-		CurArrowProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		CurArrowProjectile->ShootArrow(ShotPower);
-		if (const auto Character = Cast<ACharacter>(GetOwner()))
+		if (CurArrowProjectile)
 		{
-			UE_LOG(LogLoad, Warning, TEXT("Check"));
-			Character->PlayAnimMontage(ReleaseAnimation);
+			if (!ShotPower) {
+				CurArrowProjectile->Destroy();
+				return;
+			}
+			CurArrowProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			CurArrowProjectile->ShootArrow(ShotPower);
+			if (const auto CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0))
+			{
+				CameraManager->StopCameraShake(CurCameraShakeBase, true);
+			}
+
+			if (const auto Character = Cast<ACharacter>(GetOwner()))
+			{
+				Character->PlayAnimMontage(ReleaseAnimation);
+			}
 		}
+		ShotPower = 0.0f;
+		CameraShake = 0.0f;
 	}
-	ShotPower = 0.0f;
-	CameraShake = 1.0f;
 
 }
 
@@ -69,8 +72,7 @@ void ABaseRangeWeapon::BeginPlay()
 
 void ABaseRangeWeapon::IncreaseShotPower()
 {
-	UE_LOG(LogLoad, Warning, TEXT("Increase"));
-	ShotPower = FMath::Clamp(ShotPower++, 0.0f, MaxShotPower);
+	ShotPower = FMath::Clamp(ShotPower+1, 0.0f, MaxShotPower);
 	if (FMath::IsNearlyEqual(ShotPower,MaxShotPower))
 	{
 		IncreaseCameraShake();
@@ -79,18 +81,13 @@ void ABaseRangeWeapon::IncreaseShotPower()
 
 void ABaseRangeWeapon::IncreaseCameraShake()
 {
-	CameraShake = FMath::Clamp(CameraShake++, 0.0f, MaxShotPower);
+	CameraShake = FMath::Clamp(CameraShake+1, 0.0f, MaxShotPower);
 	if (const auto CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0))
 	{
 		if (CameraManager) {
-			CameraManager->PlayWorldCameraShake(
-				GetWorld(),
+			CurCameraShakeBase = CameraManager->StartCameraShake(
 				CameraShakeBase,
-				GetOwner()->GetActorLocation(),
-				0.0f,
-				50.0f,
-				1,
-				false
+				CameraShake
 			);
 		}
 	}
