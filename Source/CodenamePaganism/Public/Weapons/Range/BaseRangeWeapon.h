@@ -69,9 +69,9 @@ private:
 	void InitAnimations();
 	void SpawnArrow();
 	float DefaultCameraFOV = 90.0f;
-	float CurrentCameraFOV = DefaultCameraFOV;
+	float CurrentCameraFOVRate = 0;
 	float MinCameraFOV = DefaultCameraFOV - CameraFOVDelta;
-	void GetDefaultCameraFOV();
+	float GetCameraFOV();
 	void RestoreFOV();
-	void SetFOV();
+	void SetFOV(float CurrentCameraFOV);
 };

@@ -14,6 +14,7 @@
 #include "Animations/LoadAnimNotify.h"
 #include "Engine/EngineTypes.h"
 #include "Weapons/Melee/BaseMeleeWeapon.h"
+#include "Utils.h"
 
 ABaseRangeWeapon::ABaseRangeWeapon()
 {
@@ -68,14 +69,14 @@ void ABaseRangeWeapon::BeginPlay()
 
 	check(WeaponMesh);
 	InitAnimations();
-	GetDefaultCameraFOV();
+	DefaultCameraFOV = GetCameraFOV();
 }
 
 void ABaseRangeWeapon::IncreaseShotPower()
 {
 	ShotPower = FMath::Clamp(ShotPower+1, 0.0f, MaxShotPower);
-	CurrentCameraFOV = FMath::Clamp(CurrentCameraFOV - 1, MinCameraFOV, DefaultCameraFOV);
-	SetFOV();
+	CurrentCameraFOVRate = CurrentCameraFOVRate + PowerIncreaseRate;
+	SetFOV(Utils::GetSFunctionResult(CameraFOVDelta, -0.5, CameraFOVDelta / 2, CurrentCameraFOVRate, MinCameraFOV));
 	if (FMath::IsNearlyEqual(ShotPower,MaxShotPower))
 	{
 		IncreaseCameraShake();
@@ -134,26 +135,26 @@ void ABaseRangeWeapon::SpawnArrow()
 	CurArrowProjectile->AttachToComponent(Character->GetMesh(), AttachmentRules, ArrowSocketName);
 }
 
-void ABaseRangeWeapon::GetDefaultCameraFOV()
+float ABaseRangeWeapon::GetCameraFOV()
 {
 	if(APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0))
 	{
-		DefaultCameraFOV = CameraManager->GetFOVAngle();
-		CurrentCameraFOV = DefaultCameraFOV;
+		return CameraManager->GetFOVAngle();
 	}
 }
 
 void ABaseRangeWeapon::RestoreFOV()
 {
-	CurrentCameraFOV= CurrentCameraFOV+0.1f;
-	SetFOV();
-	if (FMath::IsNearlyEqual(CurrentCameraFOV, DefaultCameraFOV))
+	CurrentCameraFOVRate = CurrentCameraFOVRate - CameraFOVRestoreRate;
+	SetFOV(Utils::GetSFunctionResult(CameraFOVDelta, -0.5, CameraFOVDelta/2, CurrentCameraFOVRate, MinCameraFOV));
+	if (FMath::IsNearlyEqual(GetCameraFOV(), DefaultCameraFOV))
 	{
 		GetWorldTimerManager().ClearTimer(RestoringFOVTimerHandle);
+		CurrentCameraFOVRate = 0;
 	}
 }
 
-void ABaseRangeWeapon::SetFOV()
+void ABaseRangeWeapon::SetFOV(float CurrentCameraFOV)
 {
 	if (APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0))
 	{
