@@ -28,7 +28,11 @@ void ABaseRangeWeapon::Load()
 {
 	if (const auto Character = Cast<ACharacter>(GetOwner()))
 	{
-		Character->PlayAnimMontage(LoadAnimation);
+		if (UAnimMontage* AnimMontage = Utils::GetAnimMontage(Animations, "LoadAnimation"))
+		{
+			Character->PlayAnimMontage(FoundEntry->AnimMontage);
+			IsLoadAnimationPlaying = true;
+		}
 	}
 }
 
@@ -40,12 +44,15 @@ void ABaseRangeWeapon::Release()
 
 		if (CurArrowProjectile)
 		{
-			if (!ShotPower) {
+			if (IsLoadAnimationPlaying || !ShotPower)       // Проверка на играющую анимацию и нулевую силу стрельбы
+			{                                               // Пока что стоит удаления стрелы со сцены
 				CurArrowProjectile->Destroy();
+				if (const auto Character = Cast<ACharacter>(GetOwner())) Character->StopAnimMontage(); // Отключаем анимацию
 				return;
 			}
-			CurArrowProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-			CurArrowProjectile->ShootArrow(ShotPower);
+
+			CurArrowProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);  // Открепляет стрелу от сокета
+			CurArrowProjectile->ShootArrow(ShotPower);                                           // Вызывает функцию стрельбы
 			if (const auto CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0))
 			{
 				CameraManager->StopCameraShake(CurCameraShakeBase, true);
@@ -56,11 +63,11 @@ void ABaseRangeWeapon::Release()
 				Character->PlayAnimMontage(ReleaseAnimation);
 			}
 		}
+
 		ShotPower = 0.0f;
 		CameraShake = 0.0f;
-		GetWorldTimerManager().SetTimer(RestoringFOVTimerHandle, this, &ABaseRangeWeapon::RestoreFOV, CameraFOVRestoreRate, true);
+		GetWorldTimerManager().SetTimer(RestoringFOVTimerHandle, this, &ABaseRangeWeapon::RestoreFOV, CameraFOVRestoreRate, true); // Восстанавливаем угол обзора камеры
 	}
-
 }
 
 void ABaseRangeWeapon::BeginPlay()
@@ -76,7 +83,7 @@ void ABaseRangeWeapon::IncreaseShotPower()
 {
 	ShotPower = FMath::Clamp(ShotPower+1, 0.0f, MaxShotPower);
 	CurrentCameraFOVRate = CurrentCameraFOVRate + PowerIncreaseRate;
-	SetFOV(Utils::GetSFunctionResult(CameraFOVDelta, -0.5, CameraFOVDelta / 2, CurrentCameraFOVRate, MinCameraFOV));
+	//SetFOV(Utils::GetSFunctionResult(CameraFOVDelta, -0.5, CameraFOVDelta / 2, CurrentCameraFOVRate, MinCameraFOV));
 	if (FMath::IsNearlyEqual(ShotPower,MaxShotPower))
 	{
 		IncreaseCameraShake();
@@ -105,17 +112,18 @@ void ABaseRangeWeapon::StartIncreasingPower()
 
 void ABaseRangeWeapon::InitAnimations()
 {
+
 	auto ArrowSpawnNotify = AnimUtils::FindNotifyByClass<UArrowSpawnAnimNotify>(LoadAnimation);
 	if (ArrowSpawnNotify)
 	{
-		ArrowSpawnNotify->OnNotified.AddUObject(this, &ABaseRangeWeapon::SpawnArrow);
+		ArrowSpawnNotify->OnNotified.AddUFunction(this, CallFunc);
 	}
 	auto LoadNotify = AnimUtils::FindNotifyByClass<ULoadAnimNotify>(LoadAnimation);
 	if (LoadNotify)
 	{
 		LoadNotify->OnNotified.AddUObject(this, &ABaseRangeWeapon::StartIncreasingPower);
 	}
-	if(!ArrowSpawnNotify || !LoadNotify)
+	if(!Notify)
 	{
 		checkNoEntry();
 	}
@@ -133,6 +141,7 @@ void ABaseRangeWeapon::SpawnArrow()
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
 
 	CurArrowProjectile->AttachToComponent(Character->GetMesh(), AttachmentRules, ArrowSocketName);
+	IsLoadAnimationPlaying = false;
 }
 
 float ABaseRangeWeapon::GetCameraFOV()
@@ -141,12 +150,13 @@ float ABaseRangeWeapon::GetCameraFOV()
 	{
 		return CameraManager->GetFOVAngle();
 	}
+	return 0.f;
 }
 
 void ABaseRangeWeapon::RestoreFOV()
 {
 	CurrentCameraFOVRate = CurrentCameraFOVRate - CameraFOVRestoreRate;
-	SetFOV(Utils::GetSFunctionResult(CameraFOVDelta, -0.5, CameraFOVDelta/2, CurrentCameraFOVRate, MinCameraFOV));
+	//SetFOV(Utils::GetSFunctionResult(CameraFOVDelta, -0.5, CameraFOVDelta/2, CurrentCameraFOVRate, MinCameraFOV));
 	if (FMath::IsNearlyEqual(GetCameraFOV(), DefaultCameraFOV))
 	{
 		GetWorldTimerManager().ClearTimer(RestoringFOVTimerHandle);
