@@ -30,7 +30,7 @@ void ABaseRangeWeapon::Load()
 	{
 		if (UAnimMontage* AnimMontage = Utils::GetAnimMontage(Animations, "LoadAnimation"))
 		{
-			Character->PlayAnimMontage(FoundEntry->AnimMontage);
+			Character->PlayAnimMontage(AnimMontage);
 			IsLoadAnimationPlaying = true;
 		}
 	}
@@ -44,15 +44,15 @@ void ABaseRangeWeapon::Release()
 
 		if (CurArrowProjectile)
 		{
-			if (IsLoadAnimationPlaying || !ShotPower)       // Проверка на играющую анимацию и нулевую силу стрельбы
-			{                                               // Пока что стоит удаления стрелы со сцены
+			if (IsLoadAnimationPlaying || !ShotPower)       // ГЏГ°Г®ГўГҐГ°ГЄГ  Г­Г  ГЁГЈГ°Г ГѕГ№ГіГѕ Г Г­ГЁГ¬Г Г¶ГЁГѕ ГЁ Г­ГіГ«ГҐГўГіГѕ Г±ГЁГ«Гі Г±ГІГ°ГҐГ«ГјГЎГ»
+			{                                               // ГЏГ®ГЄГ  Г·ГІГ® Г±ГІГ®ГЁГІ ГіГ¤Г Г«ГҐГ­ГЁГї Г±ГІГ°ГҐГ«Г» Г±Г® Г±Г¶ГҐГ­Г»
 				CurArrowProjectile->Destroy();
-				if (const auto Character = Cast<ACharacter>(GetOwner())) Character->StopAnimMontage(); // Отключаем анимацию
+				if (const auto Character = Cast<ACharacter>(GetOwner())) Character->StopAnimMontage(); // ГЋГІГЄГ«ГѕГ·Г ГҐГ¬ Г Г­ГЁГ¬Г Г¶ГЁГѕ
 				return;
 			}
 
-			CurArrowProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);  // Открепляет стрелу от сокета
-			CurArrowProjectile->ShootArrow(ShotPower);                                           // Вызывает функцию стрельбы
+			CurArrowProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);  // ГЋГІГЄГ°ГҐГЇГ«ГїГҐГІ Г±ГІГ°ГҐГ«Гі Г®ГІ Г±Г®ГЄГҐГІГ 
+			CurArrowProjectile->ShootArrow(ShotPower);                                           // Г‚Г»Г§Г»ГўГ ГҐГІ ГґГіГ­ГЄГ¶ГЁГѕ Г±ГІГ°ГҐГ«ГјГЎГ»
 			if (const auto CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0))
 			{
 				CameraManager->StopCameraShake(CurCameraShakeBase, true);
@@ -66,7 +66,7 @@ void ABaseRangeWeapon::Release()
 
 		ShotPower = 0.0f;
 		CameraShake = 0.0f;
-		GetWorldTimerManager().SetTimer(RestoringFOVTimerHandle, this, &ABaseRangeWeapon::RestoreFOV, CameraFOVRestoreRate, true); // Восстанавливаем угол обзора камеры
+		GetWorldTimerManager().SetTimer(RestoringFOVTimerHandle, this, &ABaseRangeWeapon::RestoreFOV, CameraFOVRestoreRate, true); // Г‚Г®Г±Г±ГІГ Г­Г ГўГ«ГЁГўГ ГҐГ¬ ГіГЈГ®Г« Г®ГЎГ§Г®Г°Г  ГЄГ Г¬ГҐГ°Г»
 	}
 }
 
