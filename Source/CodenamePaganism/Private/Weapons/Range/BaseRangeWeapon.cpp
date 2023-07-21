@@ -44,15 +44,15 @@ void ABaseRangeWeapon::Release()
 
 		if (CurArrowProjectile)
 		{
-			if (IsLoadAnimationPlaying || !ShotPower)       // Ïðîâåðêà íà èãðàþùóþ àíèìàöèþ è íóëåâóþ ñèëó ñòðåëüáû
-			{                                               // Ïîêà ÷òî ñòîèò óäàëåíèÿ ñòðåëû ñî ñöåíû
+			if (IsLoadAnimationPlaying || !ShotPower)
+			{
 				CurArrowProjectile->Destroy();
-				if (const auto Character = Cast<ACharacter>(GetOwner())) Character->StopAnimMontage(); // Îòêëþ÷àåì àíèìàöèþ
+				if (const auto Character = Cast<ACharacter>(GetOwner())) Character->StopAnimMontage();
 				return;
 			}
 
-			CurArrowProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);  // Îòêðåïëÿåò ñòðåëó îò ñîêåòà
-			CurArrowProjectile->ShootArrow(ShotPower);                                           // Âûçûâàåò ôóíêöèþ ñòðåëüáû
+			CurArrowProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			CurArrowProjectile->ShootArrow(ShotPower);
 			if (const auto CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0))
 			{
 				CameraManager->StopCameraShake(CurCameraShakeBase, true);
@@ -61,15 +61,15 @@ void ABaseRangeWeapon::Release()
 			if (const auto Character = Cast<ACharacter>(GetOwner()))
 			{
 				if (UAnimMontage* AnimMontage = Utils::GetAnimMontage(Animations, "ReleaseAnimation"))
-		{
-			Character->PlayAnimMontage(AnimMontage);
-		}
+				{
+					Character->PlayAnimMontage(AnimMontage);
+				}
 			}
 		}
 
 		ShotPower = 0.0f;
 		CameraShake = 0.0f;
-		GetWorldTimerManager().SetTimer(RestoringFOVTimerHandle, this, &ABaseRangeWeapon::RestoreFOV, CameraFOVRestoreRate, true); // Âîññòàíàâëèâàåì óãîë îáçîðà êàìåðû
+		GetWorldTimerManager().SetTimer(RestoringFOVTimerHandle, this, &ABaseRangeWeapon::RestoreFOV, CameraFOVRestoreRate, true);
 	}
 }
 
@@ -105,7 +105,6 @@ void ABaseRangeWeapon::IncreaseCameraShake()
 			);
 		}
 	}
-
 }
 
 void ABaseRangeWeapon::StartIncreasingPower()
@@ -115,20 +114,19 @@ void ABaseRangeWeapon::StartIncreasingPower()
 
 void ABaseRangeWeapon::InitAnimations()
 {
-
-	auto ArrowSpawnNotify = AnimUtils::FindNotifyByClass<UArrowSpawnAnimNotify>(LoadAnimation);
-	if (ArrowSpawnNotify)
+	for (const FAnimations AnimationSet : Animations)
 	{
-		ArrowSpawnNotify->OnNotified.AddUFunction(this, CallFunc);
-	}
-	auto LoadNotify = AnimUtils::FindNotifyByClass<ULoadAnimNotify>(LoadAnimation);
-	if (LoadNotify)
-	{
-		LoadNotify->OnNotified.AddUObject(this, &ABaseRangeWeapon::StartIncreasingPower);
-	}
-	if(!Notify)
-	{
-		checkNoEntry();
+		UAnimMontage* CurAnimMontage = AnimationSet.AnimMontage;
+		for (const FNotifyFunc NotifySet : AnimationSet.AnimNotifies)
+		{
+			if (auto Notify = AnimUtils::FindNotifyByClass<decltype(NotifySet.Notify)>(CurAnimMontage))
+			{
+				Notify->OnNotified.AddUFunction(this, NotifySet.FuncName);
+				continue;
+			}
+			//UE_LOG()
+			checkNoEntry();
+		}
 	}
 }
 

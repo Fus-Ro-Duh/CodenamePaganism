@@ -16,7 +16,7 @@ public class CodenamePaganism : ModuleRules
             "EnhancedInput"
         });
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] {});
 
         PublicIncludePaths.AddRange(
             new string[]
@@ -25,7 +25,8 @@ public class CodenamePaganism : ModuleRules
                 "CodenamePaganism/Public/Character/Components",
                 "CodenamePaganism/Public/Animations",
                 "CodenamePaganism/Public/Weapons/Melee",
-                "CodenamePaganism/Public/Weapons/Range"
+                "CodenamePaganism/Public/Weapons/Range",
+                 "CodenamePaganism/Public"
             });
 
         // Uncomment if you are using Slate UI

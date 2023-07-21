@@ -23,7 +23,7 @@ public:
 
 	static UAnimMontage* GetAnimMontage(TArray<FAnimations> AnimArray, FName NameOfAnimMontage)
 	{
-		FAnimations* FoundEntry = AnimArray.FindByPredicate([](const FAnimations& InItem)
+		FAnimations* FoundEntry = AnimArray.FindByPredicate([](const FAnimations& InItem, FName NameOfAnimMontage)
 			{
 				return InItem.NameOfAnimation == NameOfAnimMontage;
 			});

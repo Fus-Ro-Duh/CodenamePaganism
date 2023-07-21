@@ -6,9 +6,6 @@
 #include "Animations/BaseAnimNotify.h"
 #include "LoadAnimNotify.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class CODENAMEPAGANISM_API ULoadAnimNotify : public UBaseAnimNotify
 {

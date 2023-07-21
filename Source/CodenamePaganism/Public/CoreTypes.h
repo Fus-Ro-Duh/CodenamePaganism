@@ -1,12 +1,26 @@
 #pragma once
 
+#include "Animations/BaseAnimNotify.h"
 #include "CoreTypes.generated.h"
 
-class UBaseAnimMontage;
+class UBaseAnimNotify;
 
 //Health component
 //DECLARE_MULTICAST_DELEGATE(FOnDeathSignature);
 //DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHealthChangedSignature, float, float);
+
+// Структура для notify - функция для работы (!!! Только внутренняя функция объекта, но это не точно !!!)
+USTRUCT(BlueprintType)
+struct FNotifyFunc
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
+	TSubclassOf<UBaseAnimNotify> Notify;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
+	FName FuncName;
+};
 
 // Структура для анимаций с notify
 USTRUCT(BlueprintType)
@@ -22,17 +36,4 @@ struct FAnimations
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
 	TArray<FNotifyFunc> AnimNotifies;
-};
-
-// Структура для notify - функция для работы (!!! Только внутренняя функция объекта, но это не точно !!!)
-USTRUCT(BlueprintType)
-struct FNotifyFunc
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
-	TSubclassOf<UBaseAnimMontage> Notify;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
-	FName FuncName;
 };
