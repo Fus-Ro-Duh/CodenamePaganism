@@ -60,7 +60,10 @@ void ABaseRangeWeapon::Release()
 
 			if (const auto Character = Cast<ACharacter>(GetOwner()))
 			{
-				Character->PlayAnimMontage(ReleaseAnimation);
+				if (UAnimMontage* AnimMontage = Utils::GetAnimMontage(Animations, "ReleaseAnimation"))
+		{
+			Character->PlayAnimMontage(AnimMontage);
+		}
 			}
 		}
 
@@ -83,7 +86,7 @@ void ABaseRangeWeapon::IncreaseShotPower()
 {
 	ShotPower = FMath::Clamp(ShotPower+1, 0.0f, MaxShotPower);
 	CurrentCameraFOVRate = CurrentCameraFOVRate + PowerIncreaseRate;
-	//SetFOV(Utils::GetSFunctionResult(CameraFOVDelta, -0.5, CameraFOVDelta / 2, CurrentCameraFOVRate, MinCameraFOV));
+	SetFOV(Utils::GetSFunctionResult(CameraFOVDelta, -0.5, CameraFOVDelta / 2, CurrentCameraFOVRate, MinCameraFOV));
 	if (FMath::IsNearlyEqual(ShotPower,MaxShotPower))
 	{
 		IncreaseCameraShake();
@@ -156,7 +159,7 @@ float ABaseRangeWeapon::GetCameraFOV()
 void ABaseRangeWeapon::RestoreFOV()
 {
 	CurrentCameraFOVRate = CurrentCameraFOVRate - CameraFOVRestoreRate;
-	//SetFOV(Utils::GetSFunctionResult(CameraFOVDelta, -0.5, CameraFOVDelta/2, CurrentCameraFOVRate, MinCameraFOV));
+	SetFOV(Utils::GetSFunctionResult(CameraFOVDelta, -0.5, CameraFOVDelta/2, CurrentCameraFOVRate, MinCameraFOV));
 	if (FMath::IsNearlyEqual(GetCameraFOV(), DefaultCameraFOV))
 	{
 		GetWorldTimerManager().ClearTimer(RestoringFOVTimerHandle);
