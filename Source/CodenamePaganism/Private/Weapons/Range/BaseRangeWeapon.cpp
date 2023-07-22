@@ -15,6 +15,7 @@
 #include "Engine/EngineTypes.h"
 #include "Weapons/Melee/BaseMeleeWeapon.h"
 #include "Utils.h"
+#include "CoreTypes.h"
 
 ABaseRangeWeapon::ABaseRangeWeapon()
 {
