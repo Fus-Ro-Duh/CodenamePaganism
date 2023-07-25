@@ -120,13 +120,13 @@ void ABaseRangeWeapon::InitAnimations()
 		UAnimMontage* CurAnimMontage = AnimationSet.AnimMontage;
 		for (const FNotifyFunc NotifySet : AnimationSet.AnimNotifies)
 		{
-			/*if (auto Notify = AnimUtils::FindNotifyByClass<decltype(NotifySet.Notify)>(CurAnimMontage))
+			if (auto Notify = AnimUtils::FindNotifyByClass<decltype(NotifySet.Notify.GetDefaultObject())>(CurAnimMontage))
 			{
 				Notify->OnNotified.AddUFunction(this, NotifySet.FuncName);
 				continue;
 			}
 			//UE_LOG()
-			checkNoEntry();*/
+			checkNoEntry();
 		}
 	}
 }

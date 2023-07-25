@@ -6,15 +6,14 @@ public:
 	template<typename T>
 	static T* FindNotifyByClass(UAnimMontage* Animation)
 	{
-		if (!Animation) return nullptr;
-
-		const auto NotifyEvents = Animation->Notifies;
-		for (auto NotifyEvent : NotifyEvents)
+		if (Animation)
 		{
-			auto  AnimationNotify = Cast<T>(NotifyEvent.Notify);
-			if (AnimationNotify)
+			for (auto NotifyEvent : Animation->Notifies)
 			{
-				return AnimationNotify;
+				if (auto  AnimationNotify = Cast<T>(NotifyEvent.Notify))
+				{
+					return AnimationNotify;
+				}
 			}
 		}
 		return nullptr;
