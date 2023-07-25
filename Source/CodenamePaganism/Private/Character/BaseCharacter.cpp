@@ -91,9 +91,9 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	{
 		EnhancedInputComponent->BindAction(IAMove, ETriggerEvent::Triggered, this, &ABaseCharacter::Move);
 		EnhancedInputComponent->BindAction(IALook, ETriggerEvent::Triggered, this, &ABaseCharacter::Look);
-		EnhancedInputComponent->BindAction(IAJump, ETriggerEvent::Started, this, &ABaseCharacter::Jump);
-		EnhancedInputComponent->BindAction(IACrouch, ETriggerEvent::Started, this, &ABaseCharacter::Crouch);
-		EnhancedInputComponent->BindAction(IACrouch, ETriggerEvent::Completed, this, &ABaseCharacter::UnCrouch);
+		EnhancedInputComponent->BindAction(IAJump, ETriggerEvent::Started, this, &ABaseCharacter::JumpChar);
+		EnhancedInputComponent->BindAction(IACrouch, ETriggerEvent::Started, this, &ABaseCharacter::CrouchChar);
+		EnhancedInputComponent->BindAction(IACrouch, ETriggerEvent::Completed, this, &ABaseCharacter::UnCrouchChar);
 		EnhancedInputComponent->BindAction(IAWalk, ETriggerEvent::Started, this, &ABaseCharacter::Walk);
 		EnhancedInputComponent->BindAction(IARun, ETriggerEvent::Started, this, &ABaseCharacter::Run);
 		EnhancedInputComponent->BindAction(IARun, ETriggerEvent::Completed, this, &ABaseCharacter::StopRun);
@@ -134,16 +134,16 @@ void ABaseCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void ABaseCharacter::Jump(const FInputActionValue& Value)
+void ABaseCharacter::JumpChar(const FInputActionValue& Value)
 {
 	Super::Jump();
 }
 
-void ABaseCharacter::Crouch(const FInputActionValue& Value)
+void ABaseCharacter::CrouchChar(const FInputActionValue& Value)
 {
 	Super::Crouch();
 }
-void ABaseCharacter::UnCrouch(const FInputActionValue& Value)
+void ABaseCharacter::UnCrouchChar(const FInputActionValue& Value)
 {
 	Super::UnCrouch();
 }

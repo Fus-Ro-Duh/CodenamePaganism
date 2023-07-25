@@ -21,11 +21,11 @@ public:
 		return L / (1 + FMath::Pow(UE_EULERS_NUMBER, (-k * (x - Med)))) + yDelta;
 	}
 
-	static UAnimMontage* GetAnimMontage(TArray<FAnimations> AnimArray, FName NameOfAnimMontage)
+	static UAnimMontage* GetAnimMontage(TArray<FAnimations> AnimArray, FString NameOfAnimMontage)
 	{
-		FAnimations* FoundEntry = AnimArray.FindByPredicate([](const FAnimations& InItem, FName NameOfAnimMontage)
+		FAnimations* FoundEntry = AnimArray.FindByPredicate([ NameOfAnimMontage ](const FAnimations& InItem)
 			{
-				return InItem.NameOfAnimation == NameOfAnimMontage;
+				return InItem.NameOfAnimation.ToString() == NameOfAnimMontage;
 			});
 		if (FoundEntry)
 		{

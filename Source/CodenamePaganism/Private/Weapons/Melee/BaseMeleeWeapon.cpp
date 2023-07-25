@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "TimerManager.h"
 #include "Engine/DamageEvents.h"
-#include "Animations/AnimUtils.h"
+#include "Utils/AnimUtils.h"
 #include "Animations/SwingEndAnimNotify.h"
 #include "Animations/SwingStartAnimNotify.h"
 
@@ -16,7 +16,7 @@ ABaseMeleeWeapon::ABaseMeleeWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	WeaponMesh = CreateAbstractDefaultSubobject<USkeletalMeshComponent>("WeaponMesh");
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("WeaponMesh");
 	SetRootComponent(WeaponMesh);
 }
 

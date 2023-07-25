@@ -12,7 +12,7 @@ UCLASS()
 class CODENAMEPAGANISM_API UBaseAnimNotify : public UAnimNotify
 {
 	GENERATED_BODY()
-	
+
 public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 	FOnNotifiedSignature OnNotified;

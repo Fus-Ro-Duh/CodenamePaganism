@@ -9,19 +9,19 @@
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraShakeBase.h"
 #include "Weapons/Range/Projectile/BaseProjectile.h"
-#include "Animations/AnimUtils.h"
+#include "Utils/AnimUtils.h"
 #include "Animations/ArrowSpawnAnimNotify.h"
 #include "Animations/LoadAnimNotify.h"
 #include "Engine/EngineTypes.h"
 #include "Weapons/Melee/BaseMeleeWeapon.h"
-#include "Utils.h"
-#include "CoreTypes.h"
+#include "Utils/Utils.h"
+#include "Utils/CoreTypes.h"
 
 ABaseRangeWeapon::ABaseRangeWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	WeaponMesh = CreateAbstractDefaultSubobject<USkeletalMeshComponent>("WeaponMesh");
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("WeaponMesh");
 	SetRootComponent(WeaponMesh);
 }
 
@@ -120,13 +120,13 @@ void ABaseRangeWeapon::InitAnimations()
 		UAnimMontage* CurAnimMontage = AnimationSet.AnimMontage;
 		for (const FNotifyFunc NotifySet : AnimationSet.AnimNotifies)
 		{
-			if (auto Notify = AnimUtils::FindNotifyByClass<decltype(NotifySet.Notify)>(CurAnimMontage))
+			/*if (auto Notify = AnimUtils::FindNotifyByClass<decltype(NotifySet.Notify)>(CurAnimMontage))
 			{
 				Notify->OnNotified.AddUFunction(this, NotifySet.FuncName);
 				continue;
 			}
 			//UE_LOG()
-			checkNoEntry();
+			checkNoEntry();*/
 		}
 	}
 }

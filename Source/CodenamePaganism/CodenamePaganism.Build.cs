@@ -26,7 +26,7 @@ public class CodenamePaganism : ModuleRules
                 "CodenamePaganism/Public/Animations",
                 "CodenamePaganism/Public/Weapons/Melee",
                 "CodenamePaganism/Public/Weapons/Range",
-                 "CodenamePaganism/Public"
+                "CodenamePaganism/Public/Utils"
             });
 
         // Uncomment if you are using Slate UI

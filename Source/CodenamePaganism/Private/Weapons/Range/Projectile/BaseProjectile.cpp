@@ -10,12 +10,12 @@ ABaseProjectile::ABaseProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	ProjectileMesh = CreateAbstractDefaultSubobject<USkeletalMeshComponent>("ProjectileMesh");
+	ProjectileMesh = CreateDefaultSubobject<USkeletalMeshComponent>("ProjectileMesh");
 	ProjectileMesh->SetupAttachment(RootComponent);
 	ProjectileMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	CollisionComponent = CreateAbstractDefaultSubobject<USphereComponent>("CollisionComponent");
+	CollisionComponent = CreateDefaultSubobject<USphereComponent>("CollisionComponent");
 	CollisionComponent->InitSphereRadius(5.0f);
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);

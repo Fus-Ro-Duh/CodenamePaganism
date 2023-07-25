@@ -85,9 +85,9 @@ private:
 	//Movement Functions
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void Jump(const FInputActionValue& Value);
-	void Crouch(const FInputActionValue& Value);
-	void UnCrouch(const FInputActionValue& Value);
+	void JumpChar(const FInputActionValue& Value);
+	void CrouchChar(const FInputActionValue& Value);
+	void UnCrouchChar(const FInputActionValue& Value);
 	void Walk(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);

@@ -6,8 +6,7 @@
 class UBaseAnimNotify;
 
 //Health component
-//DECLARE_MULTICAST_DELEGATE(FOnDeathSignature);
-//DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHealthChangedSignature, float, float);
+DECLARE_MULTICAST_DELEGATE(FOnDeathSignature);
 
 // Структура для notify - функция для работы (!!! Только внутренняя функция объекта, но это не точно !!!)
 USTRUCT(BlueprintType)
