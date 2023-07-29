@@ -33,6 +33,10 @@ void ABaseRangeWeapon::Load()
 		{
 			Character->PlayAnimMontage(AnimMontage);
 			IsLoadAnimationPlaying = true;
+			if (GetWorldTimerManager().IsTimerActive(RestoringFOVTimerHandle))
+			{
+				GetWorldTimerManager().ClearTimer(RestoringFOVTimerHandle);
+			}
 		}
 	}
 }
@@ -86,17 +90,14 @@ void ABaseRangeWeapon::BeginPlay()
 void ABaseRangeWeapon::IncreaseShotPower()
 {
 	ShotPower = FMath::Clamp(ShotPower+1, 0.0f, MaxShotPower);
-	CurrentCameraFOVRate = CurrentCameraFOVRate + PowerIncreaseRate;
+	CurrentCameraFOVRate += PowerIncreaseRate*10;
 	SetFOV(Utils::GetSFunctionResult(CameraFOVDelta, -0.5, CameraFOVDelta / 2, CurrentCameraFOVRate, MinCameraFOV));
-	if (FMath::IsNearlyEqual(ShotPower,MaxShotPower))
-	{
-		IncreaseCameraShake();
-	}
+	if (FMath::IsNearlyEqual(ShotPower,MaxShotPower)) IncreaseCameraShake();
 }
 
 void ABaseRangeWeapon::IncreaseCameraShake()
 {
-	CameraShake = FMath::Clamp(CameraShake+1, 0.0f, MaxShotPower);
+	CameraShake = FMath::Clamp(CameraShake + 1, 0.0f, MaxShotPower);
 	if (const auto CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0))
 	{
 		if (CameraManager) {
@@ -148,18 +149,15 @@ void ABaseRangeWeapon::SpawnArrow()
 
 float ABaseRangeWeapon::GetCameraFOV()
 {
-	if(APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0))
-	{
-		return CameraManager->GetFOVAngle();
-	}
-	return 0.f;
+	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	return CameraManager ? CameraManager->GetFOVAngle() : 0;
 }
 
 void ABaseRangeWeapon::RestoreFOV()
 {
-	CurrentCameraFOVRate = CurrentCameraFOVRate - CameraFOVRestoreRate;
+	CurrentCameraFOVRate -= CameraFOVRestoreRate*10;
 	SetFOV(Utils::GetSFunctionResult(CameraFOVDelta, -0.5, CameraFOVDelta/2, CurrentCameraFOVRate, MinCameraFOV));
-	if (FMath::IsNearlyEqual(GetCameraFOV(), DefaultCameraFOV))
+	if (FMath::IsNearlyEqualByULP(GetCameraFOV(), DefaultCameraFOV, 3))
 	{
 		GetWorldTimerManager().ClearTimer(RestoringFOVTimerHandle);
 		CurrentCameraFOVRate = 0;
