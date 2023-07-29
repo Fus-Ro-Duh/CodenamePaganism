@@ -23,10 +23,10 @@ public class CodenamePaganism : ModuleRules
             {
                 "CodenamePaganism/Public/Character",
                 "CodenamePaganism/Public/Character/Components",
+                "CodenamePaganism/Public/Utils",
                 "CodenamePaganism/Public/Animations",
                 "CodenamePaganism/Public/Weapons/Melee",
-                "CodenamePaganism/Public/Weapons/Range",
-                "CodenamePaganism/Public/Utils"
+                "CodenamePaganism/Public/Weapons/Range"
             });
 
         // Uncomment if you are using Slate UI

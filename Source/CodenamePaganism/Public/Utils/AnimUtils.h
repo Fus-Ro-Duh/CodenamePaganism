@@ -1,16 +1,18 @@
 #pragma once
 
+#include "Animations/BaseAnimNotify.h"
+
 class AnimUtils
 {
 public:
-	template<typename T>
-	static T* FindNotifyByClass(UAnimMontage* Animation)
+	static UBaseAnimNotify* FindNotifyByClass(UAnimMontage* Animation, TSubclassOf<UBaseAnimNotify> NotifyClass)
 	{
 		if (Animation)
 		{
 			for (auto NotifyEvent : Animation->Notifies)
 			{
-				if (auto  AnimationNotify = Cast<T>(NotifyEvent.Notify))
+				UBaseAnimNotify* AnimationNotify = Cast<UBaseAnimNotify>(NotifyEvent.Notify);
+				if (AnimationNotify && AnimationNotify->IsA(*NotifyClass))
 				{
 					return AnimationNotify;
 				}

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Animations/BaseAnimNotify.h"
 #include "CoreTypes.generated.h"
 
 class UBaseAnimNotify;

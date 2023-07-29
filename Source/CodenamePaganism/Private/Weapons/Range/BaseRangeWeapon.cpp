@@ -117,10 +117,10 @@ void ABaseRangeWeapon::InitAnimations()
 {
 	for (const FAnimations AnimationSet : Animations)
 	{
-		UAnimMontage* CurAnimMontage = AnimationSet.AnimMontage;
+		if (!AnimationSet.AnimNotifies.Num()) continue;
 		for (const FNotifyFunc NotifySet : AnimationSet.AnimNotifies)
 		{
-			if (auto Notify = AnimUtils::FindNotifyByClass<decltype(NotifySet.Notify.GetDefaultObject())>(CurAnimMontage))
+			if (auto Notify = AnimUtils::FindNotifyByClass(AnimationSet.AnimMontage, NotifySet.Notify))
 			{
 				Notify->OnNotified.AddUFunction(this, NotifySet.FuncName);
 				continue;

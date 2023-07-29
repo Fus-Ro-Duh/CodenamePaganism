@@ -85,21 +85,21 @@ void ABaseMeleeWeapon::SwingWeapon()
 
 void ABaseMeleeWeapon::InitAnimations()
 {
-	auto SwingStartNotify = AnimUtils::FindNotifyByClass<USwingStartAnimNotify>(AttackAnimation);
-	if (SwingStartNotify)
-	{
-		SwingStartNotify->OnNotified.AddUObject(this, &ABaseMeleeWeapon::SwingWeapon);
-	}
-	auto SwingEndNotify = AnimUtils::FindNotifyByClass<USwingEndAnimNotify>(AttackAnimation);
-	if (SwingEndNotify)
-	{
-		SwingEndNotify->OnNotified.AddUObject(this, &ABaseMeleeWeapon::SwingEnd);
-	}
-	else
-	{
-		UE_LOG(LogWeapon, Error, TEXT("Swing end anim notify is forgotten to set!"));
-		checkNoEntry();
-	}
+	//auto SwingStartNotify = AnimUtils::FindNotifyByClass<USwingStartAnimNotify>(AttackAnimation);
+	//if (SwingStartNotify)
+	//{
+	//	SwingStartNotify->OnNotified.AddUObject(this, &ABaseMeleeWeapon::SwingWeapon);
+	//}
+	//auto SwingEndNotify = AnimUtils::FindNotifyByClass<USwingEndAnimNotify>(AttackAnimation);
+	//if (SwingEndNotify)
+	//{
+	//	SwingEndNotify->OnNotified.AddUObject(this, &ABaseMeleeWeapon::SwingEnd);
+	//}
+	//else
+	//{
+	//	UE_LOG(LogWeapon, Error, TEXT("Swing end anim notify is forgotten to set!"));
+	//	checkNoEntry();
+	//}
 }
 
 void ABaseMeleeWeapon::SwingEnd()
